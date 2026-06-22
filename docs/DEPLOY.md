@@ -27,7 +27,7 @@ Mở `http://localhost:7860`. Test 3 case:
 2. Name: `lead-prospector-lite`.
 3. Visibility: **Public** (HF Spaces sync cần public hoặc trả phí).
 4. KHÔNG init README/gitignore (đã có sẵn local).
-5. Tạo xong, copy URL `https://github.com/<user>/lead-prospector-lite.git`.
+5. Tạo xong, copy URL `https://github.com/toan-chu/lead-prospector-lite.git`.
 
 Local push:
 ```powershell
@@ -36,7 +36,7 @@ git init
 git add .
 git commit -m "feat: initial MVP scaffold"
 git branch -M main
-git remote add origin https://github.com/<user>/lead-prospector-lite.git
+git remote add origin https://github.com/toan-chu/lead-prospector-lite.git
 git push -u origin main
 ```
 
@@ -46,7 +46,7 @@ git push -u origin main
 
 1. Đăng nhập huggingface.co (Google/GitHub OAuth).
 2. Click avatar góc phải → New Space.
-3. Owner: `<user>` (hoặc org Vstream nếu tạo).
+3. Owner: `toan-chu` (hoặc org Vstream nếu tạo).
 4. Space name: `lead-prospector-lite`.
 5. License: MIT.
 6. Select SDK: **Docker** → Blank template.
@@ -54,8 +54,8 @@ git push -u origin main
 8. Visibility: Public.
 9. Create Space.
 
-Sau khi tạo, URL Space: `https://huggingface.co/spaces/<user>/lead-prospector-lite`.
-URL public app: `https://<user>-lead-prospector-lite.hf.space`.
+Sau khi tạo, URL Space: `https://huggingface.co/spaces/toan-chu/lead-prospector-lite`.
+URL public app: `https://toan-chu-lead-prospector-lite.hf.space`.
 
 ---
 
@@ -97,7 +97,7 @@ Lần push này sẽ trigger Action lần đầu → check tab **Actions** trên
 
 ## Bước 6: Share link
 
-Public URL dạng: `https://<user>-lead-prospector-lite.hf.space`.
+Public URL dạng: `https://toan-chu-lead-prospector-lite.hf.space`.
 
 Copy đoạn warning vào caption khi share:
 > Demo MVP — mỗi người 10 lượt/giờ. Hệ thống có giới hạn, share xin từ tốn.

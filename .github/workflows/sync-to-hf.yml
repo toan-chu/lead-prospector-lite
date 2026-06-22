@@ -19,4 +19,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push https://vstream:${HF_TOKEN}@huggingface.co/spaces/vstream/lead-prospector-lite main --force
+          git push https://toanchu:${HF_TOKEN}@huggingface.co/spaces/toanchu/lead-prospector-lite main --force
