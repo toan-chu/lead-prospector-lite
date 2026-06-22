@@ -56,6 +56,20 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .sky-lane { height: 82px; pointer-events: none; }
 
+/* Rainbow strip — full-width đứng yên ngang màn hình */
+.rainbow-trail {
+  position: fixed;
+  top: 28px;
+  left: 0;
+  width: 100vw;
+  height: 25px;
+  z-index: 99;
+  background: repeating-linear-gradient(to bottom, #ff3050 0 4px, #ff9f1c 4px 8px, #ffe45e 8px 12px, #6eee87 12px 16px, #45b8ff 16px 20px, #9b5de5 20px 25px);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.28);
+  opacity: 0.85;
+}
+
+/* Cat sprite — bay từ phải sang trái TRÊN rainbow */
 .nyan {
   position: fixed;
   top: 17px;
@@ -69,29 +83,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
   z-index: 100;
 }
 
-.rainbow-trail {
-  position: fixed;
-  top: 28px;
-  left: 0;
-  width: 190px;
-  height: 25px;
-  z-index: 99;
-  animation: rainbow-fly 8s linear infinite;
-  background: repeating-linear-gradient(to bottom, #ff3050 0 4px, #ff9f1c 4px 8px, #ffe45e 8px 12px, #6eee87 12px 16px, #45b8ff 16px 20px, #9b5de5 20px 25px);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.28);
-}
-
 @keyframes nyan-fly {
-  from { transform: translateX(110vw); }
-  to { transform: translateX(-200px); }
+  from { transform: translateX(100vw); }
+  to { transform: translateX(-160px); }
 }
 
-@keyframes rainbow-fly {
-  from { transform: translateX(calc(110vw + 145px)); }
-  to { transform: translateX(-245px); }
-}
-
-.is-searching .nyan, .is-searching .rainbow-trail { animation-duration: 2.5s; }
+.is-searching .nyan { animation-duration: 2.5s; }
 
 .page-shell {
   width: min(100% - 32px, 760px);

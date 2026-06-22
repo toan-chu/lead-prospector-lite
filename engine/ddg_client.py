@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 import random
 import time
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
+
+logger = logging.getLogger("ddg_client")
 
 
 USER_AGENTS = [
@@ -50,14 +53,23 @@ def search(
             "Accept-Language": "en-US,en;q=0.9,vi;q=0.8",
         },
     )
+    logger.warning("DDG fetch start url=%s query=%s", url, query[:80])
     try:
         html = urlopen(request, timeout=timeout).read().decode("utf-8", "replace")
+    except HTTPError as exc:
+        logger.error("DDG HTTPError status=%s reason=%s url=%s", exc.code, exc.reason, url)
+        raise DDGBlocked(f"HTTP {exc.code} {exc.reason}") from exc
     except URLError as exc:
-        raise DDGBlocked(f"Network error: {exc}") from exc
+        logger.error("DDG URLError reason=%s url=%s", exc.reason, url)
+        raise DDGBlocked(f"Network error: {exc.reason}") from exc
 
+    logger.warning("DDG fetch ok bytes=%d", len(html))
     lower = html.lower()
-    if any(marker in lower for marker in BLOCK_MARKERS):
-        raise DDGBlocked("DuckDuckGo block/challenge page detected")
+    matched_marker = next((marker for marker in BLOCK_MARKERS if marker in lower), None)
+    if matched_marker:
+        logger.error("DDG block marker matched=%s", matched_marker)
+        raise DDGBlocked(f"DuckDuckGo block/challenge page detected (marker={matched_marker})")
     if "no results" in lower or 'data-testid="no-results"' in lower:
+        logger.warning("DDG returned no-results page")
         raise DDGEmpty("No results from DuckDuckGo")
     return html
