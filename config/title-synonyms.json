@@ -1,0 +1,47 @@
+{
+  "procurement": [
+    "procurement",
+    "purchasing",
+    "sourcing",
+    "buying",
+    "buyer",
+    "senior buyer",
+    "lead buyer",
+    "category buyer",
+    "vendor",
+    "supplier",
+    "material",
+    "commodity",
+    "import",
+    "import-export",
+    "mua hàng",
+    "thu mua",
+    "vật tư",
+    "nguyên liệu",
+    "cung ứng",
+    "trưởng phòng mua hàng",
+    "trưởng bộ phận mua hàng",
+    "chuyên viên mua hàng",
+    "nhân viên mua hàng"
+  ],
+  "manager": [
+    "manager",
+    "director",
+    "head",
+    "chief",
+    "vp",
+    "vice president",
+    "lead",
+    "team lead",
+    "supervisor",
+    "senior",
+    "specialist",
+    "officer",
+    "executive"
+  ],
+  "logistics": ["supply chain", "SCM", "distribution", "warehousing"],
+  "import": ["customs", "trade compliance", "international trade"],
+  "engineer": ["engineering", "technical"],
+  "quality": ["QA", "QC", "quality assurance", "quality control"]
+}
+

@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Tìm nhanh ba PIC LinkedIn relevant nhất cho một công ty.">
+  <title>Lead Prospector Lite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Orbitron:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+</head>
+<body>
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <header class="sky-lane" aria-hidden="true">
+    <span class="rainbow-trail"></span>
+    <img class="nyan" src="{{ url_for('static', path='/nyan.png') }}" alt="">
+  </header>
+
+  <main class="page-shell">
+    <section class="search-panel" aria-labelledby="page-title">
+      <div class="panel-topline">
+        <span class="eyebrow">Single-company search</span>
+        <span id="rate-counter" class="rate-chip" aria-live="polite">Còn 10/10 lượt giờ này</span>
+      </div>
+
+      <div class="brand-block">
+        <p class="pixel-kicker">PIC RADAR // ONLINE</p>
+        <h1 id="page-title">Lead Prospector <span>Lite</span></h1>
+        <p>Tìm 3 PIC LinkedIn relevant cho công ty bạn</p>
+      </div>
+
+      <form id="search-form" novalidate>
+        <div class="field full-width">
+          <label for="company">Tên công ty</label>
+          <input id="company" name="company" type="text" maxlength="200" placeholder="Ví dụ: Nestle Vietnam" autocomplete="organization" required autofocus>
+          <span class="field-hint">Nhập tên thương hiệu hoặc tên pháp lý.</span>
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label for="mst">MST <span>(optional)</span></label>
+            <input id="mst" name="mst" type="text" inputmode="numeric" pattern="(?:[0-9]{10}|[0-9]{13})" placeholder="0301234567" aria-describedby="mst-hint mst-error">
+            <span id="mst-hint" class="field-hint">Gồm 10 hoặc 13 chữ số.</span>
+            <span id="mst-error" class="field-error" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="role">Vai trò cần tìm</label>
+            <select id="role" name="role">
+              <option value="procurement">Procurement</option>
+              <option value="sales">Sales</option>
+              <option value="logistics">Logistics</option>
+              <option value="supply_chain">Supply Chain</option>
+            </select>
+            <span class="field-hint">Chọn nhóm chức danh relevant.</span>
+          </div>
+        </div>
+
+        <button id="submit-button" class="primary-button" type="submit">
+          <span class="button-label">Tìm PIC</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+    </section>
+
+    <div id="error-banner" class="error-banner" role="alert" hidden></div>
+
+    <section id="results" class="results-panel" aria-labelledby="results-title" hidden>
+      <div class="results-heading">
+        <div>
+          <p class="eyebrow">Kết quả đã xếp hạng</p>
+          <h2 id="results-title">PIC phù hợp nhất</h2>
+        </div>
+        <button id="download-csv" class="ghost-button" type="button">Download CSV</button>
+      </div>
+
+      <div id="empty-state" class="empty-state" hidden>
+        <span aria-hidden="true">⌁</span>
+        <p>Chưa tìm thấy profile phù hợp. Bạn vẫn có thể dùng các liên kết bổ sung bên dưới.</p>
+      </div>
+      <div id="profile-list" class="profile-list"></div>
+
+      <div class="extra-links">
+        <h3>Liên kết bổ sung</h3>
+        <div id="link-list" class="link-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <template id="profile-template">
+    <article class="profile-card">
+      <div class="avatar" aria-hidden="true"></div>
+      <div class="profile-copy">
+        <h3></h3>
+        <p class="profile-title"></p>
+        <p class="profile-company"></p>
+      </div>
+      <div class="profile-actions">
+        <span class="score-badge"></span>
+        <a class="linkedin-button" target="_blank" rel="noopener noreferrer">Mở LinkedIn</a>
+      </div>
+    </article>
+  </template>
+
+  <script>
+    const form = document.querySelector('#search-form');
+    const submitButton = document.querySelector('#submit-button');
+    const rateCounter = document.querySelector('#rate-counter');
+    const resultsSection = document.querySelector('#results');
+    const profileList = document.querySelector('#profile-list');
+    const linkList = document.querySelector('#link-list');
+    const emptyState = document.querySelector('#empty-state');
+    const errorBanner = document.querySelector('#error-banner');
+    const downloadButton = document.querySelector('#download-csv');
+    const mstInput = document.querySelector('#mst');
+    const mstError = document.querySelector('#mst-error');
+    let latestProfiles = [];
+
+    const storedRemaining = sessionStorage.getItem('rateRemaining');
+    if (storedRemaining !== null) {
+      rateCounter.textContent = `Còn ${storedRemaining}/10 lượt giờ này`;
+    }
+
+    function setLoading(isLoading) {
+      submitButton.disabled = isLoading;
+      submitButton.classList.toggle('is-loading', isLoading);
+      document.body.classList.toggle('is-searching', isLoading);
+      submitButton.querySelector('.button-label').textContent = isLoading ? 'Đang dò radar…' : 'Tìm PIC';
+    }
+
+    function showError(message) {
+      errorBanner.textContent = message;
+      errorBanner.hidden = false;
+    }
+
+    function validateMst() {
+      const value = mstInput.value.trim();
+      const valid = !value || /^(?:\d{10}|\d{13})$/.test(value);
+      mstInput.setAttribute('aria-invalid', String(!valid));
+      mstError.textContent = valid ? '' : 'MST phải gồm đúng 10 hoặc 13 chữ số.';
+      return valid;
+    }
+
+    function initials(name) {
+      return name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'PIC';
+    }
+
+    function renderProfiles(profiles) {
+      profileList.replaceChildren();
+      emptyState.hidden = profiles.length > 0;
+      profiles.forEach((profile) => {
+        const fragment = document.querySelector('#profile-template').content.cloneNode(true);
+        fragment.querySelector('.avatar').textContent = initials(profile.name);
+        fragment.querySelector('h3').textContent = profile.name || 'LinkedIn member';
+        fragment.querySelector('.profile-title').textContent = profile.title || 'Chưa rõ chức danh';
+        fragment.querySelector('.profile-company').textContent = profile.company || 'Chưa rõ công ty';
+        fragment.querySelector('.score-badge').textContent = `${profile.score} điểm`;
+        fragment.querySelector('.linkedin-button').href = profile.url;
+        profileList.appendChild(fragment);
+      });
+    }
+
+    function renderLinks(links) {
+      const labels = {
+        masothue: 'Mã số thuế',
+        google_website: 'Google Website',
+        google_company: 'Google Company',
+      };
+      linkList.replaceChildren();
+      Object.entries(labels).forEach(([key, label]) => {
+        const anchor = document.createElement('a');
+        anchor.className = 'link-chip';
+        anchor.href = links[key];
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        anchor.textContent = `${label} ↗`;
+        linkList.appendChild(anchor);
+      });
+    }
+
+    function updateRate(rateLimit) {
+      if (!rateLimit) return;
+      sessionStorage.setItem('rateRemaining', rateLimit.remaining);
+      rateCounter.textContent = `Còn ${rateLimit.remaining}/10 lượt · reset ${rateLimit.reset_in_minutes} phút`;
+    }
+
+    mstInput.addEventListener('input', validateMst);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      errorBanner.hidden = true;
+      if (!form.reportValidity() || !validateMst()) return;
+
+      setLoading(true);
+      const formData = new FormData(form);
+      const payload = {
+        company: formData.get('company').trim(),
+        mst: formData.get('mst').trim() || null,
+        role: formData.get('role'),
+      };
+
+      try {
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          const detail = Array.isArray(data.detail) ? data.detail[0]?.msg : data.detail;
+          throw new Error(data.error || detail || 'Không thể hoàn tất tìm kiếm.');
+        }
+        latestProfiles = data.profiles;
+        renderProfiles(data.profiles);
+        renderLinks(data.links);
+        updateRate(data.rate_limit);
+        resultsSection.hidden = false;
+        resultsSection.scrollIntoView({behavior: 'smooth', block: 'start'});
+      } catch (error) {
+        showError(error.message || 'Có lỗi kết nối. Vui lòng thử lại.');
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    downloadButton.addEventListener('click', () => {
+      if (!latestProfiles.length) return;
+      const headers = ['Tên', 'Chức danh', 'Công ty', 'LinkedIn URL', 'Điểm'];
+      const escapeCsv = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+      const rows = latestProfiles.map(profile => [profile.name, profile.title, profile.company, profile.url, profile.score]);
+      const csv = '\uFEFF' + [headers, ...rows].map(row => row.map(escapeCsv).join(',')).join('\r\n');
+      const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = 'lead-prospector-results.csv';
+      anchor.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "procurement": "(Procurement OR Purchasing OR Buyer OR Sourcing OR \"Vendor Management\")",
+  "sales": "(Sales OR \"Business Development\" OR \"Account Manager\" OR Commercial)",
+  "logistics": "(Logistics OR Shipping OR Forwarding OR \"Import Export\" OR Freight)",
+  "supply_chain": "(\"Supply Chain\" OR SCM OR Operations OR Planning OR Warehouse)"
+}

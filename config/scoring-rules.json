@@ -1,0 +1,18 @@
+{
+  "weights": {
+    "company_match_AND_exact_title": 100,
+    "company_match_AND_synonym_title": 90,
+    "company_match_AND_partial_title": 70,
+    "no_company_match_AND_exact_title": 30,
+    "no_company_match_AND_synonym_title": 20,
+    "no_match": 0
+  },
+  "position_filter": { "include_current": true, "include_past": false },
+  "min_score_to_include": 70,
+  "require_fields": { "title_present": true, "company_present": true, "headline_intact": true },
+  "exclude_titles_whole_word": [
+    "Intern", "Trainee", "HR Manager", "Marketing Manager", "IT Manager",
+    "Finance Manager", "Accountant", "Receptionist", "Founder", "CEO", "Chairman"
+  ],
+  "exclude_match_mode": "whole_word"
+}
