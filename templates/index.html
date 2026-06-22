@@ -132,6 +132,11 @@
     function showError(message) {
       errorBanner.textContent = message;
       errorBanner.hidden = false;
+      // Clear stale results để không hiện link/profile của cty search trước
+      resultsSection.hidden = true;
+      profileList.replaceChildren();
+      linkList.replaceChildren();
+      latestProfiles = [];
     }
 
     function validateMst() {
