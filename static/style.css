@@ -54,25 +54,34 @@ button, a { -webkit-tap-highlight-color: transparent; }
   mask-image: linear-gradient(to bottom, black, transparent 75%);
 }
 
-.sky-lane { height: 82px; pointer-events: none; }
-
-/* Rainbow strip — full-width đứng yên ngang màn hình */
-.rainbow-trail {
+/* Sky-lane container chứa cat + trail, fixed full-width */
+.sky-lane {
   position: fixed;
-  top: 28px;
+  top: 17px;
+  left: 0;
+  width: 100vw;
+  height: 60px;
+  pointer-events: none;
+  z-index: 99;
+}
+
+/* Rainbow trail — GROW từ trái theo path cat đi (snake pattern) */
+.rainbow-trail {
+  position: absolute;
+  top: 11px;
   left: 0;
   width: 100vw;
   height: 25px;
-  z-index: 99;
   background: repeating-linear-gradient(to bottom, #ff3050 0 4px, #ff9f1c 4px 8px, #ffe45e 8px 12px, #6eee87 12px 16px, #45b8ff 16px 20px, #9b5de5 20px 25px);
+  transform-origin: left center;
+  animation: trail-grow 8s linear infinite;
   box-shadow: 0 0 18px rgba(255, 255, 255, 0.28);
-  opacity: 0.85;
 }
 
-/* Cat sprite — bay từ phải sang trái TRÊN rainbow */
+/* Cat sprite — đi từ TRÁI sang PHẢI, đầu cat align với mép phải trail */
 .nyan {
-  position: fixed;
-  top: 17px;
+  position: absolute;
+  top: 0;
   left: 0;
   width: 160px;
   height: 40px;
@@ -80,15 +89,21 @@ button, a { -webkit-tap-highlight-color: transparent; }
   animation: nyan-fly 8s linear infinite;
   image-rendering: pixelated;
   filter: drop-shadow(0 0 10px var(--arcane-pink));
-  z-index: 100;
+}
+
+@keyframes trail-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 @keyframes nyan-fly {
-  from { transform: translateX(100vw); }
-  to { transform: translateX(-160px); }
+  from { transform: translateX(-160px); }
+  to { transform: translateX(calc(100vw - 160px)); }
 }
 
-.is-searching .nyan { animation-duration: 2.5s; }
+/* Search đang chạy → cat tăng tốc, trail grow nhanh hơn */
+.is-searching .nyan,
+.is-searching .rainbow-trail { animation-duration: 2.5s; }
 
 .page-shell {
   width: min(100% - 32px, 760px);
